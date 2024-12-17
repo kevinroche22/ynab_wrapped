@@ -7,6 +7,7 @@ import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd
 
@@ -18,7 +19,7 @@ account_types = df_account_balances['account_type'].unique()
 account_names = df_account_balances['account_name'].unique()
 
 ## Create Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
 
 
 ############
@@ -46,7 +47,7 @@ app.layout = html.Div([
                     options=[{'label': account_type, 'value': account_type} for account_type in account_types],
                     value=account_types[0],  ## Default to the first account type
                     multi=True,
-                    style={'width': '100%', 'margin': '10px'}
+                    style={'width': '100%', 'margin': '5px'}
                 ),
             ], style={'display': 'flex', 'flex-direction': 'column', 'align-items': 'center', 'width': '50%', 'padding': '10px'}),  ## Center the dropdown and take half width
 
@@ -58,7 +59,7 @@ app.layout = html.Div([
                     options=[{'label': account_name, 'value': account_name} for account_name in account_names],
                     value=[],  ## Default to an empty selection, meaning all accounts
                     multi=True, 
-                    style={'width': '100%', 'margin': '10px'}
+                    style={'width': '100%', 'margin': '5px'}
                 ),
             ], style={'display': 'flex', 'flex-direction': 'column', 'align-items': 'center', 'width': '50%', 'padding': '10px'}),  ## Center the dropdown and take half width
 
@@ -68,7 +69,7 @@ app.layout = html.Div([
             'align-items': 'center',  
             'flex-direction': 'row',  
             'background-color': '#f0f8ff',  
-            'padding': '20px', 
+            'padding': '10px', 
             'width': '80%',  
             'margin': '0 auto', 
         }),
@@ -79,7 +80,7 @@ app.layout = html.Div([
         'border-radius': '15px', 
         'width': '80%',  
         'margin': '0 auto', 
-        'padding': '20px',
+        'padding': '10px',
     }),
 
     ## Charts
@@ -87,12 +88,12 @@ app.layout = html.Div([
 
         ## Balance Over Time
         html.Div([
-            dcc.Graph(id='balance-over-time'),
+            dcc.Graph(id='balance-over-time',style={'width': '75vh', 'height': '55vh'}),
         ], style={'width': '50%', 'padding': '0 20px'}), 
 
-        ## Transactions Over Time
+        ## Changes Over Time
         html.Div([
-            dcc.Graph(id='transactions-over-time'),
+            dcc.Graph(id='changes-over-time',style={'width': '75vh', 'height': '55vh'}),
         ], style={'width': '50%', 'padding': '0 20px'}),
     ], style={'display': 'flex', 'width': '80%', 'margin': '0 auto', 'justify-content': 'space-between'}),
 
@@ -184,7 +185,7 @@ def update_account_name_dropdown(account_types):
 ############
 
 @app.callback(
-    [Output('transactions-over-time', 'figure'),
+    [Output('changes-over-time', 'figure'),
      Output('balance-over-time', 'figure')],
     [Input('account-type-dropdown', 'value'),
      Input('account-name-dropdown', 'value')]
@@ -210,43 +211,50 @@ def update_graph(account_types, account_names):
         df_account_balances['account_name'].isin(account_names)
     ]
     
-    ## Aggregate data for Transactions Over Time (sum the number of transactions)
+    ## Aggregate data for Transactions Over Time
     aggregated_transactions = filtered_data_transactions.groupby(['year'], as_index=False).agg(
         {'number_of_transactions': 'sum'}
     )
     
-    ## Aggregate data for Balance Over Time (sum the balances)
+    ## Aggregate data for Changes Over Time
+    aggregated_changes = filtered_data_transactions.groupby(['year'], as_index=False).agg(
+        {'change_in_balance': 'sum'}
+    )
+    aggregated_changes = aggregated_changes[aggregated_changes['year'] != 2022]
+
+    ## Aggregate data for Balance Over Time
     aggregated_balance = filtered_data_transactions.groupby(['year'], as_index=False).agg(
         {'end_of_year_balance': 'sum'}
     )
     
-    ## Create Transactions Over Time chart
-    figure_transactions = {
+    ## Create Changes Over Time chart
+    figure_changes = {
         'data': [
             {
-                'x': aggregated_transactions['year'],
-                'y': aggregated_transactions['number_of_transactions'],
-                'type': 'line',
-                'hovertemplate': 'Year: %{x}<br>Transactions: %{y}',
+                'x': aggregated_changes['year'],
+                'y': aggregated_changes['change_in_balance'],
+                'type': 'bar',
+                'hovertemplate': 'Year: %{x}<br>Change: $%{y:,.2f}',
                 'name': '',  
                 'showlegend': False  
             }
         ],
         'layout': {
-            'title': 'Transactions Over Time',
+            'title': 'Balance Changes Over Time',
             'xaxis': {
                 'title': 'Year',
                 'tickmode': 'array',
-                'tickvals': aggregated_transactions['year'].unique(),
-                'ticktext': [str(year) for year in aggregated_transactions['year'].unique()],
+                'tickvals': aggregated_changes['year'].unique(),
+                'ticktext': [str(year) for year in aggregated_changes['year'].unique()],
                 'dtick': 1 
             },
             'yaxis': {
                 'title': '',
+                'tickformat':'$,', 
                 'showgrid': True,
                 'showline': False  
             },
-            'hovermode': 'closest' 
+            'hovermode': 'closest'
         }
     }
 
@@ -284,7 +292,7 @@ def update_graph(account_types, account_names):
         }
     }  
 
-    return figure_transactions, figure_balance
+    return figure_changes, figure_balance
 
 
 ###################
