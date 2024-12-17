@@ -273,14 +273,14 @@ def update_graph(account_types, account_names):
             },
             'yaxis': {
                 'title': '', 
+                'tickformat':'$,', 
                 'showgrid': True, 
-                'showline': False 
+                'showline': False
             },
             'hovermode': 'closest',
             'hoverlabel': {
                 'namelength': 100 
             },
-            'template': 'seaborn',
         }
     }
 
