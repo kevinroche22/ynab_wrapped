@@ -282,7 +282,7 @@ def update_graph(account_types, account_names):
                 'namelength': 100 
             },
         }
-    }
+    }  
 
     return figure_transactions, figure_balance
 
@@ -361,4 +361,4 @@ def update_callout_boxes(account_types, account_names):
 #################
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
