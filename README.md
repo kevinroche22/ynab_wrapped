@@ -5,6 +5,7 @@ The backend makes a call to the YNAB API and calculates some financial metrics u
 
 # Demo
 Check out a (purposely obfuscated) demo. 
+
 ![YNAB Wrapped Demo](https://github.com/kevinroche22/ynab_wrapped/blob/main/YNAB%20Wrapped%20Demo.gif)
 
 # A Note To Self
