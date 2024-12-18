@@ -5,7 +5,7 @@ The backend makes a call to the YNAB API and calculates some financial metrics u
 
 # Demo
 Check out a (purposely obfuscated) demo. 
-https://github.com/user-attachments/assets/b0df238e-d8a9-4620-88ac-e8d485d6ed7a
+![YNAB Wrapped Demo](https://github.com/kevinroche22/ynab_wrapped/blob/main/YNAB%20Wrapped%20Demo.gif)
 
 # A Note To Self
 Future Kevin: You can run this from the terminal by navigating to your local copy of the repo via `cd` and `ls` and then running `python <local_path_to_ynab_wrapped_here>/ynab_wrapped.py`.
