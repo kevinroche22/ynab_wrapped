@@ -410,4 +410,4 @@ def update_callout_boxes(account_types, account_names, hide_numbers):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
